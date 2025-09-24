@@ -1,0 +1,41 @@
+name: 01 — Hello Actions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/01-hello.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hello-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Print workflow and repo context
+        run: |
+          echo "Hello from: $GITHUB_WORKFLOW"
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "SHA: $GITHUB_SHA"
+
+      - name: Produce an artifact file
+        run: |
+          mkdir -p out
+          echo "Timestamp: $(date -u)" > out/hello.txt
+          echo "Runner: $RUNNER_OS" >> out/hello.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hello-artifact
+          path: out/hello.txt

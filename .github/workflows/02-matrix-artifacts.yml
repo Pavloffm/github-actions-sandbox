@@ -1,0 +1,54 @@
+name: 02 — Matrix & Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/02-matrix-artifacts.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: matrix-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create artifact per OS
+        run: |
+          mkdir -p out
+          echo "OS=${{ matrix.os }}" > out/info.txt
+          echo "RUN_ID=$GITHUB_RUN_ID" >> out/info.txt
+
+      - name: Upload per-OS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: info-${{ matrix.os }}
+          path: out/info.txt
+
+  gather:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: gathered
+
+      - name: Show merged artifact contents
+        run: |
+          echo "Downloaded files:" && ls -R gathered
+          echo "---" && cat gathered/*/info.txt

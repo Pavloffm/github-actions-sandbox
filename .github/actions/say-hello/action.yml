@@ -1,0 +1,14 @@
+name: "Say Hello"
+description: "A minimal composite action that greets a name"
+author: "Your Name"
+runs:
+  using: "composite"
+  steps:
+    - name: Greet
+      shell: bash
+      run: |
+        echo "Hello, ${{ inputs.name }}!"
+inputs:
+  name:
+    description: "Name to greet"
+    required: true

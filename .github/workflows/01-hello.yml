@@ -39,3 +39,8 @@ jobs:
         with:
           name: hello-artifact
           path: out/hello.txt
+
+      - name: Use local composite action
+        uses: ./.github/actions/say-hello
+        with:
+          name: "Actions Learner"
